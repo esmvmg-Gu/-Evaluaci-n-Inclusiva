@@ -122,8 +122,8 @@ tr:last-child td{border-bottom:none;}
     <button class="btn" id="cbtn" onclick="connectAPI()">→ Conectar</button>
     <div class="err" id="api-err"></div>
     <div class="hint">
-      <strong>¿Error de CORS?</strong> Sube este archivo a GitHub Pages (repositorio <code>matheo84.github.io/isce-dashboard</code>) — igual que hiciste con la app de asistencia. Desde HTTPS funciona perfecto.<br><br>
-      O usa <strong>📂 Cargar CSV</strong>: exporta desde KoboToolbox → Data → Downloads → CSV.
+      <strong>Token:</strong> cópialo desde kf.kobotoolbox.org → tu nombre de usuario → <em>Account Settings</em> → sección <em>API token</em> → ícono del ojo 👁.<br><br>
+      Si da error de red, usa la pestaña <strong>📂 Cargar CSV</strong>: exporta desde KoboToolbox → Data → Downloads → CSV.
     </div>
   </div></div></div>
   <div id="api-dash" style="display:none">
@@ -215,7 +215,9 @@ function showE(id,msg){const e=document.getElementById(id);e.innerHTML=msg;e.sty
 function selForm(uid,btn){UID=uid;document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');loadAPI();}
 async function loadAPI(){
   const rb=document.getElementById('api-rbtn');rb?.classList.add('loading');
-  const d=await fetch(`https://kf.kobotoolbox.org/api/v2/assets/${UID}/data/?limit=500`,{headers:{'Authorization':'Token '+TK}})
+  // Use token as URL param to avoid CORS preflight (no custom headers = simple GET request)
+  const apiUrl=`https://kf.kobotoolbox.org/api/v2/assets/${UID}/data/?limit=500&token_key=${TK}`;
+  const d=await fetch(apiUrl)
     .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status+' — verifica que el token sea correcto');return r.json();});
   document.getElementById('api-fn').textContent=FL.find(f=>f.uid===UID)?.name||UID;
   document.getElementById('api-ts').textContent=new Date().toLocaleTimeString('es-GT');
